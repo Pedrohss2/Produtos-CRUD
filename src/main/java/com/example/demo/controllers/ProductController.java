@@ -22,7 +22,7 @@ public class ProductController {
     @PostMapping("/products")
     public ResponseEntity<ProductModel> saveProduct(@RequestBody @Valid ProductRecordDTO productRecordDTO) {
         var productModel = new ProductModel();
-
+        
         // Converter de DTO para MODEL
         BeanUtils.copyProperties(productRecordDTO, productModel);
 
