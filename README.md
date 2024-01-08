@@ -12,7 +12,7 @@
 
 
 ```http
-  POST /products
+  POST: /products
 ```
 
 Body: 
