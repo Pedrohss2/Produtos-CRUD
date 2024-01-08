@@ -11,8 +11,8 @@
 #### End-point: Fazer-pedido
 
 
-```http
-  POST: /products
+```http://localhost:8080/
+  POST /products
 ```
 
 Body: 
