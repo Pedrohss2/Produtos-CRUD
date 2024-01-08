@@ -23,6 +23,5 @@ public class ProductModel implements Serializable {
     private String name;
 
     private BigDecimal valor;
-    
 
 }
