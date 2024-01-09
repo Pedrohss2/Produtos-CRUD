@@ -1,12 +1,15 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dto.ProductRecordDTO;
+import com.example.demo.exceptions.Exception;
 import com.example.demo.models.ProductModel;
 import com.example.demo.repositories.ProductRepository;
+import com.example.demo.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -19,8 +22,10 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
 public class ProductController {
 
-    @Autowired
-    ProductRepository productRepository;
+    final ProductService productService;
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
 
     @PostMapping("/products")
     public ResponseEntity<ProductModel> saveProduct(@RequestBody @Valid ProductRecordDTO productRecordDTO) {
@@ -32,12 +37,12 @@ public class ProductController {
         //Construindo o retorno..
         // Primeiro o STATUS E DEPOIS OQ PASSOU NO CORPO (NOME, VALOR E UUID)
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(productRepository.save(productModel));
+        return ResponseEntity.status(HttpStatus.CREATED).body(productService.save(productModel));
     }
 
     @GetMapping("/products")
     public ResponseEntity<List<ProductModel>> getAllProducts() {
-        List<ProductModel> productModelList = productRepository.findAll();
+        List<ProductModel> productModelList = productService.findAll();
         if(!productModelList.isEmpty()) {
             for (ProductModel product : productModelList) {
                 UUID id  = product.getIdProduct();
@@ -51,11 +56,9 @@ public class ProductController {
 
     @GetMapping("/products/{id}")
     public  ResponseEntity<Object> getById(@PathVariable(value = "id") UUID id) {
-        Optional<ProductModel> productModel = productRepository.findById(id);
+        Optional<ProductModel> productModel = productService.findById(id);
 
-        if(productModel.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found ");
-        }
+        if(productModel.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found ");
 
         return ResponseEntity.status(HttpStatus.OK).body(productModel.get());
     }
@@ -63,7 +66,7 @@ public class ProductController {
     @PutMapping("/products/{id}")
     public ResponseEntity<Object> updateProduct(@PathVariable(value = "id") UUID id, @RequestBody @Valid ProductRecordDTO productRecordDTO) {
 
-        Optional<ProductModel> productM = productRepository.findById(id);
+        Optional<ProductModel> productM = productService.findById(id);
 
         if(productM.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product Not found");
@@ -72,19 +75,18 @@ public class ProductController {
         var productModel  = productM.get();
         BeanUtils.copyProperties(productRecordDTO, productModel);
 
-        return ResponseEntity.status(HttpStatus.OK).body(productRepository.save(productModel));
+        return ResponseEntity.status(HttpStatus.OK).body(productService.save(productModel));
     }
-
 
     @DeleteMapping("products/{id}")
     public ResponseEntity<Object> deleteProduct(@PathVariable(value = "id") UUID id) {
-        Optional<ProductModel> productM = productRepository.findById(id);
+        Optional<ProductModel> productM = productService.findById(id);
 
         if(productM.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product Not found");
         }
 
-        productRepository.delete(productM.get());
+        productService.delete(productM.get());
         return ResponseEntity.status(HttpStatus.OK).body("Product deleted successfully");
 
     }

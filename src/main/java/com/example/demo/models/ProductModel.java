@@ -1,8 +1,10 @@
 package com.example.demo.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Singular;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serializable;
@@ -21,8 +23,12 @@ public class ProductModel extends RepresentationModel<ProductModel> implements S
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID idProduct;
 
+    @Column(name = "tb_name")
+    @Size(max = 20)
     private String name;
 
+    @Column(name = "tb_valor")
     private BigDecimal valor;
+
 
 }
